@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Λίστα Αγορών</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        input[type="number"] {
+            width: 50px;
+        }
+        #cart {
+            position: fixed;
+            top: 50%;
+            left: -100px;
+            font-size: 50px;
+            transition: left 5s linear;
+        }
+        #celebration {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 50px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Λίστα Αγορών</h1>
+    <table id="inputTable">
+        <tr>
+            <th>Είδος</th>
+            <th>Ποσότητα</th>
+        </tr>
+        <!-- Τα είδη θα προστεθούν εδώ με JavaScript -->
+    </table>
+    <button onclick="generateSortedList()">Πάρτα με την σειρά</button>
+
+    <div id="sortedList" style="display:none;">
+        <h2>Ταξινομημένη Λίστα</h2>
+        <table id="sortedTable">
+            <tr>
+                <th>Είδος</th>
+                <th>Ποσότητα</th>
+                <th>Ενέργεια</th>
+            </tr>
+            <!-- Η ταξινομημένη λίστα θα προστεθεί εδώ -->
+        </table>
+    </div>
+
+    <div id="cart">🛒</div>
+    <div id="celebration">🏆🎉<br>Άντε να πληρώσεις τώρα!</div>
+
+    <script>
+        const items = [
+            "Κορνφλέικς", "Καφέ", "Γάλα", "Γιαούρτι", "Τυρί Τοστ", "Μαρούλι", "Πατάτες", 
+            "Κρεμμύδια", "Ζαμπόν", "Ψωμί Τοστ", "Βούτυρο", "Κρέμα Γάλακτος", "Τυρόπιτα", 
+            "Καθαρότητα", "Παρμεζάνα", "Παξιμάδια", "Μακαρόνια", "Ρύζι", "Απορρυπαντικό", 
+            "Σαπούνι", "Χαρτί Υγείας", "Μωρομάντηλα", "Σαμπουάν", "Αφρόλουτρο", 
+            "Οδοντόκρεμα", "Σκόνη"
+        ];
+
+        const order = [
+            1, 2, 24, 25, 18, 15, 16, 17, 20, 21, 26, 27, 22, 23, 19, 3, 4, 5, 6, 7, 12, 11, 
+            10, 9, 13, 14
+        ];
+
+        // Δημιουργία του αρχικού πίνακα
+        const inputTable = document.getElementById('inputTable');
+        items.forEach(item => {
+            const row = inputTable.insertRow();
+            row.insertCell(0).textContent = item;
+            const quantityCell = row.insertCell(1);
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.min = '0';
+            quantityCell.appendChild(input);
+        });
+
+        function generateSortedList() {
+            const sortedList = [];
+            const rows = inputTable.rows;
+            
+            for (let i = 1; i < rows.length; i++) {
+                const item = rows[i].cells[0].textContent;
+                const quantity = rows[i].cells[1].querySelector('input').value;
+                if (quantity && quantity > 0) {
+                    sortedList.push({ item, quantity, order: order[i-1] });
+                }
+            }
+
+            sortedList.sort((a, b) => a.order - b.order);
+
+            const sortedTable = document.getElementById('sortedTable');
+            // Καθαρισμός προηγούμενων αποτελεσμάτων
+            while (sortedTable.rows.length > 1) {
+                sortedTable.deleteRow(1);
+            }
+
+            sortedList.forEach((item, index) => {
+                const row = sortedTable.insertRow();
+                row.insertCell(0).textContent = item.item;
+                row.insertCell(1).textContent = item.quantity;
+                const actionCell = row.insertCell(2);
+                const takeButton = document.createElement('button');
+                takeButton.textContent = 'Το πήρα;';
+                takeButton.onclick = function() {
+                    this.innerHTML = '😊✅ πήγαινε στο επόμενο τώρα';
+                    this.disabled = true;
+                    if (index === sortedList.length - 1) {
+                        document.getElementById('celebration').style.display = 'block';
+                    }
+                };
+                actionCell.appendChild(takeButton);
+            });
+
+            document.getElementById('sortedList').style.display = 'block';
+            animateCart();
+        }
+
+        function animateCart() {
+            const cart = document.getElementById('cart');
+            cart.style.left = '-100px';
+            setTimeout(() => {
+                cart.style.left = window.innerWidth + 'px';
+            }, 100);
+        }
+    </script>
+</body>
+</html>
